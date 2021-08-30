@@ -1,7 +1,7 @@
-
 <?php
     require 'databases.php';
 
+    /////////////// Registar usuario nuevo ////////////////
     $message = '';
 
     if (!empty($_POST['email']) && !empty($_POST['password'])) {
@@ -17,46 +17,25 @@
             $message = 'Ha ocurrido un error';
         }
     }
-    
-    // Ya guarde en la base de datos
+
+    ///////////////////////////////////////////////////////
+
     session_start();
 
-    if (isset($_SESSION['user_id'])) {
-        header('Location: /php-index');
-    }
-
-    if (!empty($_POST['email']) && !empty($_POST['password'])) {
+    if (!empty($_POST['email_log']) && !empty($_POST['password_log'])) {
         $records = $conn->prepare('SELECT id, email, password FROM users WHERE email = :email');
-        $records->bindParam(':email', $_POST['email']);
+        $records->bindParam(':email', $_POST['email_log']);
         $records->execute();
         $results = $records->fetch(PDO::FETCH_ASSOC);
 
-        $message2 = '';
-
-        if (count($results) > 0 && password_verify($_POST['password'], $results['password'])) {
+        if (count($results) > 0 && password_verify($_POST['password_log'], $results['password'])) {
             $_SESSION['user_id'] = $results['id'];
-            header("Location: /php-index");
-            } else {
-            $message = 'El usuario o contraseña es incorrecto';
+            header("Location: /Proyecto-login/login.php");
+        } else {
+            $message = 'Sorry, those credentials do not match';
         }
     }
 
-    // Inicio de sesion
-
-    // session_start();
-
-    if (isset($_SESSION['user_id'])) {
-        $records = $conn->prepare('SELECT id, email, password FROM users WHERE id = :id');
-        $records->bindParam(':id', $_SESSION['user_id']);
-        $records->execute();
-        $results = $records->fetch(PDO::FETCH_ASSOC);
-
-        $user = null;
-
-    if (count($results) > 0) {
-      $user = $results;
-    }
-  }
 ?>
 
 <!DOCTYPE html>
@@ -70,7 +49,7 @@
     <link rel="stylesheet" href="assets/css/estilos.css">
 </head>
 <body>
-    
+
     <main>
 
         <div class="contenedor__todo">
@@ -88,10 +67,6 @@
                     <p> <?= $message ?></p>
                     <?php endif; ?>
 
-                    <?php if(!empty($message)): ?>
-                    <p> <?= $message2 ?></p>
-                    <?php endif; ?>
-
                     <p>Regístrate para que puedas iniciar sesión</p>
                     <button id="btn__registrarse">Regístrarse</button>
                 </div>
@@ -102,21 +77,19 @@
                 <!--Login-->
                 <form action="index.php" method="POST" class="formulario__login">
                     <h2>Iniciar Sesión</h2>
-                    <input type="text" name="email" placeholder="Correo Electronico">
-                    <input type="password" name="password" placeholder="Contraseña">
-                    <input type="submit" value="Submit">
+                    <input type="text" name="email_log" placeholder="Correo Electronico">
+                    <input type="password" name="password_log" placeholder="Contraseña">
                     <button type="submit">Entrar</button>
                 </form>
 
                 <!--Register-->
                 <form action="index.php" method="POST" class="formulario__register">
                     <h2>Regístrarse</h2>
-                    <input type="text" name="email" placeholder="Nombre completo">
-                    <input type="text" placeholder="Correo Electronico">
+                    <input type="text" placeholder="Nombre completo">
+                    <input type="text" name="email" placeholder="Correo Electronico">
                     <input type="text" placeholder="Usuario">
                     <input type="password" name="password" placeholder="Contraseña">
-                    <input type="submit" value="Submit">
-                    <button>Regístrarse</button>
+                    <button type="submit">Regístrarse</button>
                 </form>
             </div>
         </div>
